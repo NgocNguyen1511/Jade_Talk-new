@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "832892368467",
+    "project_id": "jadetalk-86eed",
+    "storage_bucket": "jadetalk-86eed.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:832892368467:android:ddcedc534ec356e60178a6",
+        "android_client_info": {
+          "package_name": "com.example.jade_talk"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHr2SpGtivUs9iucsfU3XymItSOcOWKRI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
