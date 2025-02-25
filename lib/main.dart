@@ -3,10 +3,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:jade_talk/providers/authentication_provider.dart';
+import 'package:jade_talk/screens/friends_requests_screen.dart';
+import 'package:jade_talk/screens/friends_screen.dart';
 import 'package:jade_talk/screens/login_screen.dart';
 import 'package:jade_talk/firebase_options.dart';
 import 'package:jade_talk/screens/home_screen.dart';
+import 'package:jade_talk/screens/profile_screen.dart';
 import 'package:jade_talk/screens/register_screen.dart';
+import 'package:jade_talk/screens/settings_screen.dart';
 import 'package:jade_talk/screens/splash_screen.dart';
 import 'package:jade_talk/screens/user_infor_screen.dart';
 import 'package:jade_talk/utilities/constants.dart';
@@ -60,6 +64,10 @@ class MyApp extends StatelessWidget {
             Constants.userInformationScreen: (context) =>
                 const UserInforScreen(),
             Constants.homeScreen: (context) => const HomeScreen(),
+            Constants.profileScreen: (context) => const ProfileScreen(),
+            Constants.settingsScreen: (context) => const SettingsScreen(),
+          Constants.friendsScreen: (context) => const FriendsScreen(),
+          Constants.friendsRequestsScreen: (context) => const FriendsRequestsScreen(),
           }),
     );
   }

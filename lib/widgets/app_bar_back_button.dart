@@ -10,7 +10,7 @@ class AppBarBackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-          icon:  Icon(Platform.isAndroid ? Icons.arrow_back : Icons.arrow_back_ios),
+          icon:  Icon(Platform.isAndroid ? Icons.arrow_back : Icons.arrow_back_ios ?? Icons.arrow_back),
           onPressed: onPressed,
         );
   }

@@ -40,6 +40,11 @@ class _HomeScreenState extends State<HomeScreen> {
               radius: 20,
               onTap: () {
                 //navigate to user profile
+                Navigator.pushNamed(
+                  context,
+                  Constants.profileScreen,
+                  arguments: authProvider.userModel!.uid,
+                );
               },
             ),
           ),

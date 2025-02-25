@@ -1,22 +1,4 @@
-class Constants{
-  static const String uid = 'uid';
-  static const String name = 'name';
-  static const String email = 'email';
-  static const String password = 'password';
-  static const String image = 'image';
-  static const String token = 'token';
-  static const String aboutMe = 'aboutMe';
-  static const String lastSeen = 'lastSeen';
-  static const String createdAt = 'createdAt';
-  static const String isOnline = 'isOnline';
-  static const String friendsUIDs = 'friendsUIDs';
-  static const String friendRequestsUIDs = 'friendRequestsUIDs';
-  static const String sentFriendRequestsUIDs = 'sentFriendRequestsUIDs';
-
-  //else about user (name for database collection...etc)
-  static const String users = 'users';
-  static const String userModel = 'userModel';
-
+class Constants {
   //routes
   static const String splashScreen = '/splashScreen';
   static const String loginScreen = '/loginScreen';
@@ -33,4 +15,48 @@ class Constants{
   static const String friendsScreen = '/friendsScreen';
   static const String aboutScreen = '/aboutScreen';
 
+  static const String uid = 'uid';
+  static const String name = 'name';
+  static const String email = 'email';
+  static const String password = 'password';
+  static const String image = 'image';
+  static const String token = 'token';
+  static const String aboutMe = 'aboutMe';
+  static const String lastSeen = 'lastSeen';
+  static const String createdAt = 'createdAt';
+  static const String isOnline = 'isOnline';
+  static const String friendsUIDs = 'friendsUIDs';
+  static const String friendRequestsUIDs = 'friendRequestsUIDs';
+  static const String sentFriendRequestsUIDs = 'sentFriendRequestsUIDs';
+
+  static const String contactName = 'contactName';
+  static const String contactImage = 'contactImage';
+  static const String groupId = 'groupId';
+
+  static const String senderUID = 'senderUID';
+  static const String senderName = 'senderName';
+  static const String senderImage = 'senderImage';
+  static const String contactUID = 'contactUID';
+  static const String message = 'message';
+  static const String messageType = 'messageType';
+  static const String timeSent = 'timeSent';
+  static const String messageId = 'messageId';
+  static const String isSeen = 'isSeen';
+  static const String repliedMessage = 'repliedMessage';
+  static const String repliedTo = 'repliedTo';
+  static const String repliedMessageType = 'repliedMessageType';
+  static const String isMe = 'isMe';
+  static const String reactions = 'reactions';
+  static const String lastMessage = 'lastMessage';
+  static const String chats = 'chats';
+  static const String messages = 'messages';
+  static const String groups = 'groups';
+  static const String chatFiles = 'chatFiles';
+  static const String private = 'private';
+  static const String public = 'public';
+
+  //else about user (name for database collection...etc)
+  static const String users = 'users';
+  static const String userModel = 'userModel';
 }
+

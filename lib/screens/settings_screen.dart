@@ -1,5 +1,8 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:jade_talk/providers/authentication_provider.dart';
+import 'package:jade_talk/utilities/constants.dart';
+import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -12,17 +15,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool isDarkMode = false;
 
   void getThemeMode() async {
-    // Lấy chế độ theme đã lưu
     final savedThemeMode = await AdaptiveTheme.getThemeMode();
-
-    // Kiểm tra xem chế độ đã lưu có phải là dark mode không
     if (savedThemeMode == AdaptiveThemeMode.dark) {
-      // Thiết lập isDarkMode thành true
       setState(() {
         isDarkMode = true;
       });
     } else {
-      // Thiết lập isDarkMode thành false
       setState(() {
         isDarkMode = false;
       });
@@ -37,27 +35,86 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = context.read<AuthenticationProvider>().userModel!;
+
+    //get user dataa from arguments
+    final uid = ModalRoute.of(context)!.settings.arguments as String;
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Settings'),
+        centerTitle: true,
+        actions: [
+          currentUser.uid == uid
+              ?
+              // logout button
+              IconButton(
+                  onPressed: () async {
+                    // create a dialog to confirm logout
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Logout'),
+                        content: const Text('Are you sure you want to logout?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              // logout
+                              await context
+                                  .read<AuthenticationProvider>()
+                                  .logOut()
+                                  .whenComplete(() {
+                                Navigator.pop(context);
+                                Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  Constants.loginScreen,
+                                  (route) => false,
+                                );
+                              });
+                            },
+                            child: const Text('Logout'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.logout),
+                )
+              : const SizedBox(),
+        ],
+      ),
       body: Center(
         child: Card(
           child: SwitchListTile(
-            title: Text('Dark Mode'),
-            value: isDarkMode,
-            onChanged: (value) {
-              // set the isDarkMode to the value
-              setState(() {
-                isDarkMode = value;
-              });
-              // check if the value is true
-              if (value) {
-                // set the theme mode to dark
-                AdaptiveTheme.of(context).setDark();
-              } else {
-                // set the theme mode to light
-                AdaptiveTheme.of(context).setLight();
-              }
-            },
-          ),
+              title: const Text('Dark Mode'),
+              secondary: Container(
+                height: 30,
+                width: 30,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isDarkMode ? Colors.white : Colors.black,
+                ),
+                child: Icon(
+                  isDarkMode ? Icons.nightlight_round : Icons.wb_sunny_rounded,
+                  color: isDarkMode ? Colors.black : Colors.white,
+                ),
+              ),
+              value: isDarkMode,
+              onChanged: (value) {
+                setState(() {
+                  isDarkMode = value;
+                });
+                if (value) {
+                  AdaptiveTheme.of(context).setDark();
+                } else {
+                  AdaptiveTheme.of(context).setLight();
+                }
+              }),
         ),
       ),
     );
