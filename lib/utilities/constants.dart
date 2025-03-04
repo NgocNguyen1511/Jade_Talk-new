@@ -29,10 +29,15 @@ class Constants {
   static const String friendRequestsUIDs = 'friendRequestsUIDs';
   static const String sentFriendRequestsUIDs = 'sentFriendRequestsUIDs';
 
+    //else about user (name for database collection...etc)
+  static const String users = 'users';
+  static const String userModel = 'userModel';
+
   static const String contactName = 'contactName';
   static const String contactImage = 'contactImage';
   static const String groupId = 'groupId';
 
+  //chat
   static const String senderUID = 'senderUID';
   static const String senderName = 'senderName';
   static const String senderImage = 'senderImage';
@@ -55,8 +60,6 @@ class Constants {
   static const String private = 'private';
   static const String public = 'public';
 
-  //else about user (name for database collection...etc)
-  static const String users = 'users';
-  static const String userModel = 'userModel';
+
 }
 

@@ -55,7 +55,12 @@ dependencies:
   cloudinary_url_gen: ^1.0.0
   http: ^1.1.2
   flutter_dotenv: ^5.2.1
-  flutter_bloc: ^9.0.0
+  date_format: ^2.0.9
+  grouped_list: ^5.1.2
+  swipe_to: 1.0.5
+  timeago: ^3.6.0
+  emoji_picker_flutter: ^2.1.1
+  animate_do: ^3.3.1
 
 dev_dependencies:
   flutter_test:

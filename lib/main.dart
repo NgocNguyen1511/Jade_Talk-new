@@ -3,6 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:jade_talk/providers/authentication_provider.dart';
+import 'package:jade_talk/providers/chat_provider.dart';
+import 'package:jade_talk/screens/chat_screen.dart';
 import 'package:jade_talk/screens/friends_requests_screen.dart';
 import 'package:jade_talk/screens/friends_screen.dart';
 import 'package:jade_talk/screens/login_screen.dart';
@@ -27,6 +29,7 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
       ],
       child: MyApp(savedThemeMode: savedThemeMode),
     ),
@@ -68,6 +71,7 @@ class MyApp extends StatelessWidget {
             Constants.settingsScreen: (context) => const SettingsScreen(),
           Constants.friendsScreen: (context) => const FriendsScreen(),
           Constants.friendsRequestsScreen: (context) => const FriendsRequestsScreen(),
+          Constants.chatScreen: (context) => const ChatScreen(),
           }),
     );
   }

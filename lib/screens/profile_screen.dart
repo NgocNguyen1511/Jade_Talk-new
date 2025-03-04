@@ -222,7 +222,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         TextButton(
                           onPressed: () async {
-                            Navigator.pop(context);
+                            Future.delayed(
+                              const Duration(milliseconds: 500),
+                              () {
+                                Navigator.pop(context);
+                              },
+                            );
                             // remove friend
                           await context
                                 .read<AuthenticationProvider>()

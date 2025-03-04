@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jade_talk/providers/authentication_provider.dart';
-import 'package:jade_talk/screens/chats_list_screen.dart';
+import 'package:jade_talk/screens/chat_screen.dart';
 import 'package:jade_talk/screens/groups_screen.dart';
+import 'package:jade_talk/screens/my_chats_screen.dart';
 import 'package:jade_talk/screens/people_screen.dart';
 import 'package:jade_talk/utilities/constants.dart';
 import 'package:jade_talk/utilities/global_methods.dart';
@@ -20,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int currentIndex = 0;
 
   final List<Widget> pages = const [
-    ChatsListScreen(),
+    MyChatsScreen(),
     GroupScreen(),
     PeopleScreen(),
   ];
