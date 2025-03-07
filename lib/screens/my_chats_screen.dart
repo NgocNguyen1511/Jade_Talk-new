@@ -5,6 +5,7 @@ import 'package:jade_talk/models/last_message_model.dart';
 import 'package:jade_talk/providers/authentication_provider.dart';
 import 'package:jade_talk/providers/chat_provider.dart';
 import 'package:jade_talk/utilities/constants.dart';
+import 'package:jade_talk/utilities/global_methods.dart';
 import 'package:provider/provider.dart';
 
 class MyChatsScreen extends StatefulWidget {
@@ -60,11 +61,12 @@ class _MyChatsScreenState extends State<MyChatsScreen> {
                             isMe ? 'You: ${chat.message}' : chat.message;
 
                         return ListTile(
-                          leading: CircleAvatar(
-                            radius: 30,
-                            backgroundImage: NetworkImage(chat.contactImage),
+                          leading: userImageWidget(
+                            imageUrl: chat.contactImage,
+                            radius: 40,
+                            onTap: () {},
                           ),
-                           contentPadding: EdgeInsets.zero,
+                          contentPadding: EdgeInsets.zero,
                           title: Text(chat.contactName),
                           subtitle: Text(
                             lastMessage,

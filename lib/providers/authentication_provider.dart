@@ -62,6 +62,14 @@ class AuthenticationProvider extends ChangeNotifier {
     }
   }
 
+  // update user status
+  Future<void> updateUserStatus({required bool value}) async {
+    await _firestore
+        .collection(Constants.users)
+        .doc(_uid)
+        .update({Constants.isOnline: value});
+  }
+
   //get user data from firestore
   Future<void> getUserDataFromFireStore(BuildContext context) async {
     DocumentSnapshot documentSnapshot =

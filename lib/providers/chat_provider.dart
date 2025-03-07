@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:jade_talk/enums/enums.dart';
@@ -5,6 +7,7 @@ import 'package:jade_talk/models/last_message_model.dart';
 import 'package:jade_talk/models/message_model.dart';
 import 'package:jade_talk/models/message_reply_model.dart';
 import 'package:jade_talk/models/user_model.dart';
+import 'package:jade_talk/services/cloudinary_service.dart';
 import 'package:jade_talk/utilities/constants.dart';
 import 'package:uuid/uuid.dart';
 
@@ -28,6 +31,28 @@ class ChatProvider extends ChangeNotifier {
   // firebase initialization
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  //store file to cloudinary and get the url
+  Future<String> storeFileToCloudinary({
+    required File file,
+    required String reference,
+  }) async {
+    try {
+      // 1. upload file to cloudinary
+      String? fileUrl = await uploadToCloudinary(file);
+      // 2. get the url
+      if (fileUrl != null) {
+        print('file uploaded successfully: $fileUrl');
+        return fileUrl;
+      } else {
+        print('failed to upload file');
+        return '';
+      }
+    } catch (e) {
+      print('error during file upload: $e');
+      return '';
+    }
+  }
+
   // send text message to firestore
   Future<void> sendTextMessage({
     required UserModel sender,
@@ -40,6 +65,9 @@ class ChatProvider extends ChangeNotifier {
     required Function onSuccess,
     required Function(String) onError,
   }) async {
+    //set loading to true
+    setLoading(true);
+    notifyListeners();
     try {
       var messageId = const Uuid().v4();
 
@@ -60,6 +88,79 @@ class ChatProvider extends ChangeNotifier {
         senderImage: sender.image,
         contactUID: contactUID,
         message: message,
+        messageType: messageType,
+        timeSent: DateTime.now(),
+        messageId: messageId,
+        isSeen: false,
+        repliedMessage: repliedMessage,
+        repliedTo: repliedTo,
+        repliedMessageType: repliedMessageType,
+        reactions: [],
+      );
+
+      // 3. check if its a group message and send to group else sned to contact
+      if (groupId.isNotEmpty) {
+        // handle group message
+      } else {
+        // handle contact message
+        handleContactMessage(
+          messageModel: messageModel,
+          contactUID: contactUID,
+          contactName: contactName,
+          contactImage: contactImage,
+          onSuccess: onSuccess,
+          onError: onError,
+        );
+
+        // set message reply model to null
+        setMessageReplyModel(null);
+      }
+    } catch (e) {
+      onError(e.toString());
+    }
+  }
+
+  //send file message to firestore
+  Future<void> sendFileMessage({
+    required UserModel sender,
+    required String contactUID,
+    required String contactName,
+    required String contactImage,
+    required File file,
+    required MessageEnum messageType,
+    required String groupId,
+    required Function onSuccess,
+    required Function(String) onError,
+  }) async {
+    //set loading to true
+    setLoading(true);
+    notifyListeners();
+    try {
+      var messageId = const Uuid().v4();
+
+      //1. check if its a message reply and add the replied message to the message
+      String repliedMessage = _messageReplyModel?.message ?? '';
+      String repliedTo = _messageReplyModel == null
+          ? ''
+          : _messageReplyModel!.isMe
+              ? 'You'
+              : _messageReplyModel!.senderName;
+      MessageEnum repliedMessageType =
+          _messageReplyModel?.messageType ?? MessageEnum.text;
+
+      //2. upload file to cloundinary
+      final ref =
+          '${messageType.name}/${sender.uid}/${contactUID}/${messageId}';
+      String fileUrl = await storeFileToCloudinary(file: file, reference: ref);
+      print('Uploaded URL: $fileUrl');
+
+      //2. update/set the messagemodel
+      final messageModel = MessageModel(
+        senderUID: sender.uid,
+        senderName: sender.name,
+        senderImage: sender.image,
+        contactUID: contactUID,
+        message: fileUrl,
         messageType: messageType,
         timeSent: DateTime.now(),
         messageId: messageId,
@@ -208,6 +309,9 @@ class ChatProvider extends ChangeNotifier {
       // });
 
       // 7. Call onSuccess function
+
+      //setloading to false
+      setLoading(false);
       onSuccess();
     } on FirebaseException catch (e) {
       onError(e.message ?? e.toString());

@@ -105,6 +105,7 @@ class _ChatListState extends State<ChatList> {
     final uid = context.read<AuthenticationProvider>().userModel!.uid;
     return GestureDetector(
       onVerticalDragDown: (_) {
+        //automatically hide the keyboard when scrolling down
         FocusScope.of(context).unfocus();
       },
       child: StreamBuilder<List<MessageModel>>(
@@ -266,6 +267,7 @@ class _ChatListState extends State<ChatList> {
                   ],
                 );
               },
+              //groupComparator to make which is the latest message at the last time
               groupComparator: (value1, value2) => value2.compareTo(value1),
               itemComparator: (item1, item2) {
                 var firstItem = item1.timeSent;

@@ -1,9 +1,12 @@
+import 'dart:io';
 
+import 'package:image_picker/image_picker.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:jade_talk/enums/enums.dart';
 import 'package:jade_talk/providers/authentication_provider.dart';
 import 'package:jade_talk/providers/chat_provider.dart';
+import 'package:jade_talk/services/cloudinary_service.dart';
 import 'package:jade_talk/utilities/global_methods.dart';
 import 'package:jade_talk/widgets/message_reply_preview.dart';
 import 'package:provider/provider.dart';
@@ -29,6 +32,8 @@ class BottomChatField extends StatefulWidget {
 class _BottomChatFieldState extends State<BottomChatField> {
   late TextEditingController _textEditingController;
   late FocusNode _focusNode;
+  File? finalFileImage;
+  String filePath = '';
 
   bool isShowEmojiPicker = false;
 
@@ -81,6 +86,49 @@ class _BottomChatFieldState extends State<BottomChatField> {
     super.dispose();
   }
 
+  //select image from camera or gallery
+  void selectImage(bool fromCamera) async {
+    finalFileImage = fromCamera
+        ? await pickImageFromImagePicker(ImageSource.camera)
+        : await pickImageFromImagePicker(ImageSource.gallery);
+    if (finalFileImage != null) {
+      setState(() {
+        //send
+        sendFileMessage(messageType: MessageEnum.image);
+      });
+    }
+    poptheDialog();
+  }
+
+  poptheDialog() {
+    Navigator.of(context).pop();
+  }
+
+  //send image message to firestore
+  void sendFileMessage({
+    required MessageEnum messageType,
+  }) async {
+    final currentUser = context.read<AuthenticationProvider>().userModel!;
+    final chatProvider = context.read<ChatProvider>();
+
+    if (finalFileImage != null) {
+      chatProvider.sendFileMessage(
+          sender: currentUser,
+          contactUID: widget.contactUID,
+          contactName: widget.contactName,
+          contactImage: widget.contactImage,
+          file: finalFileImage!,
+          messageType: messageType,
+          groupId: widget.groupId,
+          onSuccess: () {
+            finalFileImage = null;
+          },
+          onError: (error) {
+            showSnackBar(context, error);
+          });
+    }
+  }
+
   //send text message to firestore
   void sendTextMessage() {
     final currentUser = context.read<AuthenticationProvider>().userModel!;
@@ -131,23 +179,49 @@ class _BottomChatFieldState extends State<BottomChatField> {
                             ? Icons.keyboard_alt
                             : Icons.emoji_emotions_outlined),
                       ),
-
-                      IconButton(
-                        onPressed: () {
-                          showModalBottomSheet(
-                            context: context,
-                            builder: (context) {
-                              return Container(
-                                height: 200,
-                                child: const Center(
-                                  child: Text('Attachment'),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                        icon: const Icon(Icons.attachment),
-                      ),
+                      chatProvider.isLoading
+                          ? const CircularProgressIndicator()
+                          : IconButton(
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  builder: (context) {
+                                    return SizedBox(
+                                      height: 200,
+                                      child: Column(
+                                        children: [
+                                          // select image from camera
+                                          ListTile(
+                                            leading:
+                                                const Icon(Icons.camera_alt),
+                                            title: const Text('Camera'),
+                                            onTap: () {
+                                              selectImage(true);
+                                            },
+                                          ),
+                                          // select image from gallery
+                                          ListTile(
+                                            leading: const Icon(Icons.image),
+                                            title: const Text('Gallery'),
+                                            onTap: () {
+                                              selectImage(false);
+                                            },
+                                          ),
+                                          // select a video file from device
+                                          ListTile(
+                                            leading:
+                                                const Icon(Icons.video_library),
+                                            title: const Text('Video'),
+                                            onTap: () {},
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                              icon: const Icon(Icons.attachment),
+                            ),
                       Expanded(
                         child: TextFormField(
                           controller: _textEditingController,
@@ -166,23 +240,26 @@ class _BottomChatFieldState extends State<BottomChatField> {
                           },
                         ),
                       ),
-                      GestureDetector(
-                        onTap: sendTextMessage, //send text message to firestore
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            color: Colors.deepPurple,
-                          ),
-                          margin: const EdgeInsets.all(5),
-                          child: const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Icon(
-                              Icons.arrow_upward,
-                              color: Colors.white,
+                      chatProvider.isLoading
+                          ? const CircularProgressIndicator()
+                          : GestureDetector(
+                              onTap:
+                                  sendTextMessage, //send text message to firestore
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(30),
+                                  color: Colors.deepPurple,
+                                ),
+                                margin: const EdgeInsets.all(5),
+                                child: const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Icon(
+                                    Icons.arrow_upward,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ],

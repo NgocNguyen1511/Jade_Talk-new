@@ -1,6 +1,8 @@
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
+import 'package:jade_talk/enums/enums.dart';
 import 'package:jade_talk/models/message_model.dart';
+import 'package:jade_talk/widgets/display_message_type.dart';
 import 'package:swipe_to/swipe_to.dart';
 
 class ContactMessageWidget extends StatelessWidget {
@@ -38,8 +40,9 @@ class ContactMessageWidget extends StatelessWidget {
           child: Stack(
             children: [
               Padding(
-                padding: const EdgeInsets.only(
-                    left: 10, right: 30, top: 5, bottom: 20),
+                padding: message.messageType == MessageEnum.text
+                    ? const EdgeInsets.fromLTRB(10.0, 10.0, 20.0, 20.0)
+                    : const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 25.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -61,21 +64,22 @@ class ContactMessageWidget extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                 ), 
                               ),
-                              Text(
-                                message.repliedMessage,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                ), 
+                              DisplayMessageType(
+                                message: message.repliedMessage,
+                                type: message.messageType,
+                                color: Colors.black,
+                                maxLines: 1,
+                                overFlow: TextOverflow.ellipsis,
                               ),
                             ], 
                           ), 
                         ), 
                       ), 
                     ],
-                    Text(
-                      message.message,
-                      style:  TextStyle(color: isDarkMode? Colors.white: Colors.black),
+                    DisplayMessageType(
+                      message: message.message,
+                      type: message.messageType,
+                      color: Colors.black,
                     ),
                   ],
                 ),

@@ -16,17 +16,16 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
-    //current user id
-    final uid = context.read<AuthenticationProvider>().userModel!.uid;
+
     //get arguments passed from previous screen
     final arguments = ModalRoute.of(context)!.settings.arguments as Map;
-    //get contactUID frome the arguments
+    //get contactUID from the arguments
     final contactUID = arguments[Constants.contactUID];
-    //get contactName frome the arguments
+    //get contactName from the arguments
     final contactName = arguments[Constants.contactName];
-    //get contactImage frome the arguments
+    //get contactImage from the arguments
     final contactImage = arguments[Constants.contactImage];
-    //get the groupId frome the arguments
+    //get the groupId from the arguments
     final groupId = arguments[Constants.groupId];
 
     //check if the groupId is emty -then its a chat with a friend else its a group chat

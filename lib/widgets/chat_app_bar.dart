@@ -11,6 +11,7 @@ class ChatAppBar extends StatefulWidget {
   const ChatAppBar({super.key, required this.contactUID});
 
   final String contactUID;
+
   @override
   State<ChatAppBar> createState() => _ChatAppBarState();
 }
@@ -51,7 +52,9 @@ class _ChatAppBarState extends State<ChatAppBar> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(userModel.name),
+                Text(
+                  userModel.name,
+                ),
                 Text(
                   userModel.isOnline
                       ? 'Online'
