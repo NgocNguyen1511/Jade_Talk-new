@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jade_talk/utilities/assets_manager.dart';
 
+import '../enums/enums.dart';
+
 
 Widget entryField(
   String title,
@@ -102,6 +104,59 @@ Center buildDateTime(groupedByValue) {
       ),
     ),
   );
+}
+
+Widget messageToShow({required MessageEnum type, required String message}) {
+  switch (type) {
+    case MessageEnum.text:
+      return Text(
+        message,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    case MessageEnum.image:
+      return const  Row(
+        children: [
+          Icon(Icons.image_outlined),
+          SizedBox(width: 10),
+          Text(
+            'Image',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      );
+    case MessageEnum.video:
+      return const Row(
+        children: [
+          Icon(Icons.video_library_outlined),
+          SizedBox(width: 10),
+          Text(
+            'Video',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      );
+    case MessageEnum.audio:
+      return const Row(
+        children: [
+          Icon(Icons.audiotrack_outlined),
+          SizedBox(width: 10),
+          Text(
+            'Audio',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      );
+    default:
+      return Text(
+        message,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+  }
 }
 
 List<String> reactions = [

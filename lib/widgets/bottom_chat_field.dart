@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter_sound_record/flutter_sound_record.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,8 @@ import 'package:jade_talk/providers/chat_provider.dart';
 import 'package:jade_talk/services/cloudinary_service.dart';
 import 'package:jade_talk/utilities/global_methods.dart';
 import 'package:jade_talk/widgets/message_reply_preview.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 class BottomChatField extends StatefulWidget {
@@ -30,11 +33,15 @@ class BottomChatField extends StatefulWidget {
 }
 
 class _BottomChatFieldState extends State<BottomChatField> {
+  FlutterSoundRecord? _soundRecord;
   late TextEditingController _textEditingController;
   late FocusNode _focusNode;
   File? finalFileImage;
   String filePath = '';
 
+  bool isRecording = false;
+  bool isSendingAudio = false;
+  bool isShowSendButton = false;
   bool isShowEmojiPicker = false;
 
   //hide emoji container
@@ -76,14 +83,54 @@ class _BottomChatFieldState extends State<BottomChatField> {
   void initState() {
     super.initState();
     _textEditingController = TextEditingController();
+    _soundRecord = FlutterSoundRecord();
     _focusNode = FocusNode();
   }
 
   @override
   void dispose() {
     _textEditingController.dispose();
+    _soundRecord?.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  //check microphone permission
+  Future<bool> checkMicrophonePermission() async {
+    bool hasPermission = await Permission.microphone.isGranted;
+    final status = await Permission.microphone.request();
+    if (status == PermissionStatus.granted) {
+      return true;
+    } else {
+      hasPermission = false;
+    }
+    return hasPermission;
+  }
+
+  //start recording audio
+  void startRecording() async {
+    final hasPermission = await checkMicrophonePermission();
+    if (hasPermission) {
+      var tempDir = await getTemporaryDirectory();
+      filePath = '${tempDir.path}/flutter_sound.aac';
+      await _soundRecord!.start(
+        path: filePath,
+      );
+      setState(() {
+        isRecording = true;
+      });
+    }
+  }
+
+  //stop recording audio
+  void stopRecording() async {
+    await _soundRecord!.stop();
+    setState(() {
+      isRecording = false;
+      isSendingAudio = true;
+    });
+    //send audio message to firestore
+    sendFileMessage(messageType: MessageEnum.audio);
   }
 
   //select image from camera or gallery
@@ -121,9 +168,16 @@ class _BottomChatFieldState extends State<BottomChatField> {
           messageType: messageType,
           groupId: widget.groupId,
           onSuccess: () {
-            finalFileImage = null;
+            _textEditingController.clear();
+            _focusNode.unfocus();
+            setState(() {
+              isSendingAudio = false;
+            });
           },
           onError: (error) {
+            setState(() {
+              isSendingAudio = false;
+            });
             showSnackBar(context, error);
           });
     }
@@ -179,10 +233,10 @@ class _BottomChatFieldState extends State<BottomChatField> {
                             ? Icons.keyboard_alt
                             : Icons.emoji_emotions_outlined),
                       ),
-                      chatProvider.isLoading
-                          ? const CircularProgressIndicator()
-                          : IconButton(
-                              onPressed: () {
+                      IconButton(
+                        onPressed: isSendingAudio
+                            ? null
+                            : () {
                                 showModalBottomSheet(
                                   context: context,
                                   builder: (context) {
@@ -220,8 +274,8 @@ class _BottomChatFieldState extends State<BottomChatField> {
                                   },
                                 );
                               },
-                              icon: const Icon(Icons.attachment),
-                            ),
+                        icon: const Icon(Icons.attachment),
+                      ),
                       Expanded(
                         child: TextFormField(
                           controller: _textEditingController,
@@ -235,28 +289,44 @@ class _BottomChatFieldState extends State<BottomChatField> {
                             ),
                             hintText: 'Type a message',
                           ),
+                          onChanged: (value) {
+                            setState(() {
+                              isShowSendButton = value.isNotEmpty;
+                            });
+                          },
                           onTap: () {
                             hideEmojiContainer();
                           },
                         ),
                       ),
                       chatProvider.isLoading
-                          ? const CircularProgressIndicator()
+                          ? const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: CircularProgressIndicator(),
+                            )
                           : GestureDetector(
-                              onTap:
-                                  sendTextMessage, //send text message to firestore
+                              onTap: isShowSendButton ? sendTextMessage : null,
+                              onLongPress:
+                                  isShowSendButton ? null : startRecording,
+                              onLongPressUp: stopRecording,
+                              //send text message to firestore
                               child: Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(30),
                                   color: Colors.deepPurple,
                                 ),
                                 margin: const EdgeInsets.all(5),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Icon(
-                                    Icons.arrow_upward,
-                                    color: Colors.white,
-                                  ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: isShowSendButton
+                                      ? const Icon(
+                                          Icons.arrow_upward,
+                                          color: Colors.white,
+                                        )
+                                      : const Icon(
+                                          Icons.mic,
+                                          color: Colors.white,
+                                        ),
                                 ),
                               ),
                             ),

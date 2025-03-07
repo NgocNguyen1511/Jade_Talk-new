@@ -134,7 +134,6 @@ class ChatProvider extends ChangeNotifier {
   }) async {
     //set loading to true
     setLoading(true);
-    notifyListeners();
     try {
       var messageId = const Uuid().v4();
 
@@ -314,8 +313,12 @@ class ChatProvider extends ChangeNotifier {
       setLoading(false);
       onSuccess();
     } on FirebaseException catch (e) {
+      //setloading to false
+      setLoading(false);
       onError(e.message ?? e.toString());
     } catch (e) {
+      //setloading to false
+      setLoading(false);
       onError(e.toString());
     }
   }
