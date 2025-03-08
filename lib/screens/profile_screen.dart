@@ -222,19 +222,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         TextButton(
                           onPressed: () async {
-                            Future.delayed(
-                              const Duration(milliseconds: 500),
-                              () {
-                                Navigator.pop(context);
-                              },
-                            );
-                            // remove friend
-                          await context
+                            // remove friends
+                            await context
                                 .read<AuthenticationProvider>()
                                 .removeFriend(friendID: userModel.uid)
                                 .whenComplete(() {
+                              if (context.mounted) {
+                                Navigator.pop(
+                                    context); // only pop if the context is mounted
                                 showSnackBar(
-                                  context, 'You are no longer friends with ${userModel.name}',);
+                                  context,
+                                  'You are no longer friends with ${userModel.name}',
+                                );
+                              }
                             });
                           },
                           child: const Text('Yes'),
@@ -261,7 +261,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
                 label: 'chat',
                 width: MediaQuery.of(context).size.width * 0.4,
-                backgroundColor:  Colors.deepPurple,
+                backgroundColor: Colors.deepPurple,
                 textColor: Colors.white,
               ),
             ],

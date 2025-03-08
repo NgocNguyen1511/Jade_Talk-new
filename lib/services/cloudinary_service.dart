@@ -17,6 +17,28 @@ Future<String?> uploadToCloudinary(File file) async {
   //create a MultiPart request to upload the file
   var uri = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
   var request = http.MultipartRequest('POST', uri);
+  
+  if (file == null) {
+    print("cant upload an empty file");
+    return null;
+  }
+
+  //get resource type from the file extension
+  String getResourceType(String extension){
+    final imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'ico', 'tiff', 'svg', 'eps', 'jpe', 'jpg2', 'j2k', 'jpf', 'jpx', 'jpm', 'mj2'];
+    final videoExtensions = ['mp4', 'avi', 'flv', 'wmv', 'mov', 'webm', 'mkv', '3gp', 'ogg', 'ogv', 'm4v', 'mpg', 'mpeg', 'm2v', 'm4v', '3g2'];
+    final audioExtensions = ['mp3', 'wav', 'wma', 'ogg', 'flac', 'aac', 'alac', 'aiff', 'dsd', 'pcm', 'm4a', 'm4b', 'm4p', 'm4r', 'm4v', '3g2'];
+
+    if (imageExtensions.contains(extension)) {
+      return 'image';
+    } else if (videoExtensions.contains(extension)) {
+      return 'video';
+    } else if (audioExtensions.contains(extension)) {
+      return 'audio';
+    } else {
+      return 'raw';
+    }
+  }
 
   //read the file content as bytes
   var fileBytes = await file.readAsBytes();
@@ -24,11 +46,14 @@ Future<String?> uploadToCloudinary(File file) async {
   var multipartFile = http.MultipartFile.fromBytes('file', fileBytes,
       filename: file.path.split('/').last);
 
+  var fileExtension = file.path.split('.').last;
+  var resourceType = getResourceType(fileExtension);
+
   //add file part to the request
   request.files.add(multipartFile);
 
   request.fields['upload_preset'] = uploadPreset;
-  request.fields['resource_type'] = "raw";
+  request.fields['resource_type'] = resourceType;
 
   request.fields['folder'] = 'my-chats-folder';
 
