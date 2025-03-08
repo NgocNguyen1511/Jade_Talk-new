@@ -31,28 +31,6 @@ class ChatProvider extends ChangeNotifier {
   // firebase initialization
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  //store file to cloudinary and get the url
-  Future<String> storeFileToCloudinary({
-    required File file,
-    required String reference,
-  }) async {
-    try {
-      // 1. upload file to cloudinary
-      String? fileUrl = await uploadToCloudinary(file);
-      // 2. get the url
-      if (fileUrl != null) {
-        print('file uploaded successfully: $fileUrl');
-        return fileUrl;
-      } else {
-        print('failed to upload file');
-        return '';
-      }
-    } catch (e) {
-      print('error during file upload: $e');
-      return '';
-    }
-  }
-
   // send text message to firestore
   Future<void> sendTextMessage({
     required UserModel sender,
@@ -148,9 +126,7 @@ class ChatProvider extends ChangeNotifier {
           _messageReplyModel?.messageType ?? MessageEnum.text;
 
       //2. upload file to cloundinary
-      final ref =
-          '${messageType.name}/${sender.uid}/${contactUID}/${messageId}';
-      String fileUrl = await storeFileToCloudinary(file: file, reference: ref);
+      String? fileUrl = await uploadToCloudinary(file);
       print('Uploaded URL: $fileUrl');
 
       //2. update/set the messagemodel
@@ -159,7 +135,7 @@ class ChatProvider extends ChangeNotifier {
         senderName: sender.name,
         senderImage: sender.image,
         contactUID: contactUID,
-        message: fileUrl,
+        message: fileUrl!,
         messageType: messageType,
         timeSent: DateTime.now(),
         messageId: messageId,

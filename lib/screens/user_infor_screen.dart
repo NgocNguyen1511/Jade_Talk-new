@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:jade_talk/models/user_model.dart';
@@ -23,6 +24,8 @@ class _UserInforScreenState extends State<UserInforScreen> {
   final RoundedLoadingButtonController _btnController =
       RoundedLoadingButtonController();
   final TextEditingController _nameController = TextEditingController();
+  File? finalFileImage;
+  String userImage = '';
 
   @override
   void dispose() {
@@ -31,17 +34,39 @@ class _UserInforScreenState extends State<UserInforScreen> {
     super.dispose();
   }
 
-//select image from camera or gallery
-  File? finalFileImage;
-
+  //select image from camera or gallery
   void selectImage(bool fromCamera) async {
-    finalFileImage = fromCamera
-        ? await pickImageFromImagePicker(ImageSource.camera)
-        : await pickImageFromImagePicker(ImageSource.gallery);
-    if (finalFileImage != null) {
-      setState(() {});
+    finalFileImage = await pickImage(
+      fromCamera: fromCamera,
+      onFail: (String message) {
+        showSnackBar(context, message);
+      },
+    );
+
+    // crop image
+    cropImage(finalFileImage!.path);
+  }
+
+  Future<void> cropImage(croppedFilePath) async {
+  if (croppedFilePath != null) {
+    CroppedFile? croppedFile = await ImageCropper().cropImage(
+      sourcePath: croppedFilePath,
+      maxHeight: 800,
+      maxWidth: 800,
+      compressQuality: 90,
+    );
+
+    if (croppedFile != null) {
+      setState(() {
+        finalFileImage = File(croppedFile.path);
+      });
     }
-    poptheDialog();
+  }
+}
+
+
+  popTheDialog() {
+    Navigator.of(context).pop();
   }
 
   void showBottomSheet() {
@@ -170,7 +195,7 @@ class _UserInforScreenState extends State<UserInforScreen> {
         _btnController.success();
         // save user data to shared preferences
         await authProvider.saveUserDataToSharedPreferences();
-      
+
         navigateToHomeScreen();
       },
       onFail: () async {

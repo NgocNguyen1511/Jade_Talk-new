@@ -1,13 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter_sound_record/flutter_sound_record.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:jade_talk/enums/enums.dart';
 import 'package:jade_talk/providers/authentication_provider.dart';
 import 'package:jade_talk/providers/chat_provider.dart';
-import 'package:jade_talk/services/cloudinary_service.dart';
 import 'package:jade_talk/utilities/global_methods.dart';
 import 'package:jade_talk/widgets/message_reply_preview.dart';
 import 'package:path_provider/path_provider.dart';
@@ -135,23 +135,41 @@ class _BottomChatFieldState extends State<BottomChatField> {
 
   //select image from camera or gallery
   void selectImage(bool fromCamera) async {
-    finalFileImage = fromCamera
-        ? await pickImageFromImagePicker(ImageSource.camera)
-        : await pickImageFromImagePicker(ImageSource.gallery);
-    if (finalFileImage != null) {
-      setState(() {
-        //send
-        sendFileMessage(messageType: MessageEnum.image);
-      });
-    }
-    poptheDialog();
+    finalFileImage = await pickImage(
+      fromCamera: fromCamera,
+      onFail: (String message) {
+        showSnackBar(context, message);
+      },
+    );
+
+    // crop image
+    await cropImage(finalFileImage?.path);
+
+    popContext();
   }
 
-  poptheDialog() {
+  popContext() {
     Navigator.of(context).pop();
   }
 
-  //send image message to firestore
+  Future<void> cropImage(croppedFilePath) async {
+    if (croppedFilePath != null) {
+      CroppedFile? croppedFile = await ImageCropper().cropImage(
+        sourcePath: croppedFilePath,
+        maxHeight: 800,
+        maxWidth: 800,
+        compressQuality: 90,
+      );
+
+      if (croppedFile != null) {
+        filePath = croppedFile.path;
+        // send image message to firestore
+        sendFileMessage(messageType: MessageEnum.image);
+      }
+    }
+  }
+
+  //send file message to firestore
   void sendFileMessage({
     required MessageEnum messageType,
   }) async {
@@ -164,7 +182,7 @@ class _BottomChatFieldState extends State<BottomChatField> {
           contactUID: widget.contactUID,
           contactName: widget.contactName,
           contactImage: widget.contactImage,
-          file: finalFileImage!,
+          file: File(filePath),
           messageType: messageType,
           groupId: widget.groupId,
           onSuccess: () {
