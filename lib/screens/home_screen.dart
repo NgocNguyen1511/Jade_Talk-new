@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jade_talk/providers/authentication_provider.dart';
-import 'package:jade_talk/screens/chat_screen.dart';
 import 'package:jade_talk/screens/groups_screen.dart';
 import 'package:jade_talk/screens/my_chats_screen.dart';
 import 'package:jade_talk/screens/people_screen.dart';

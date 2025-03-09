@@ -14,15 +14,6 @@ Future<String?> uploadToCloudinary(File file) async {
   return null;
   }
 
-  //create a MultiPart request to upload the file
-  var uri = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
-  var request = http.MultipartRequest('POST', uri);
-  
-  if (file == null) {
-    print("cant upload an empty file");
-    return null;
-  }
-
   //get resource type from the file extension
   String getResourceType(String extension){
     final imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'ico', 'tiff', 'svg', 'eps', 'jpe', 'jpg2', 'j2k', 'jpf', 'jpx', 'jpm', 'mj2'];
@@ -34,7 +25,7 @@ Future<String?> uploadToCloudinary(File file) async {
     } else if (videoExtensions.contains(extension)) {
       return 'video';
     } else if (audioExtensions.contains(extension)) {
-      return 'audio';
+      return 'raw';
     } else {
       return 'raw';
     }
@@ -48,6 +39,10 @@ Future<String?> uploadToCloudinary(File file) async {
 
   var fileExtension = file.path.split('.').last;
   var resourceType = getResourceType(fileExtension);
+
+    //create a MultiPart request to upload the file
+  var uri = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/$resourceType/upload');
+  var request = http.MultipartRequest('POST', uri);
 
   //add file part to the request
   request.files.add(multipartFile);

@@ -87,6 +87,23 @@ Widget userImageWidget({
   );
 }
 
+// pick video from gallery
+Future<File?> pickVideo({
+  required Function(String) onFail,
+}) async {
+  File? fileVideo;
+  try {
+    final pickedFile = await ImagePicker().pickVideo(source: ImageSource.gallery);
+    if (pickedFile == null) {
+      onFail('No video selected');
+    } else {
+      fileVideo = File(pickedFile.path);
+    }
+  } catch (e) {
+    onFail(e.toString());
+  }
+  return fileVideo;
+}
 
 Center buildDateTime(groupedByValue) {
   return Center(
@@ -97,7 +114,7 @@ Center buildDateTime(groupedByValue) {
         child: Text(
           formatDate(groupedByValue.timeSent, [dd, ' ', M, ', ', yyyy]),
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
           ),
         ),

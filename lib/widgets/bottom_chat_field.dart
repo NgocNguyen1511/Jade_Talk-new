@@ -152,6 +152,26 @@ class _BottomChatFieldState extends State<BottomChatField> {
     Navigator.of(context).pop();
   }
 
+  // select a video file from device
+  void selectVideo() async {
+    File? fileVideo = await pickVideo(
+      onFail: (String message) {
+        showSnackBar(context, message);
+      },
+    );
+
+    popContext();
+
+    if (fileVideo != null) {
+      filePath = fileVideo.path;
+      // send video message to firestore
+      sendFileMessage(
+        messageType: MessageEnum.video,
+      );
+    }
+  }
+
+
   Future<void> cropImage(croppedFilePath) async {
     if (croppedFilePath != null) {
       CroppedFile? croppedFile = await ImageCropper().cropImage(
@@ -284,7 +304,7 @@ class _BottomChatFieldState extends State<BottomChatField> {
                                             leading:
                                                 const Icon(Icons.video_library),
                                             title: const Text('Video'),
-                                            onTap: () {},
+                                            onTap: selectVideo,
                                           ),
                                         ],
                                       ),
