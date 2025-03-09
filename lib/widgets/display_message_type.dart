@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:jade_talk/enums/enums.dart';
 import 'package:jade_talk/widgets/audio_player_widget.dart';
+import 'package:jade_talk/widgets/video_player_widget.dart';
 
 class DisplayMessageType extends StatelessWidget {
   const DisplayMessageType({
@@ -9,6 +10,7 @@ class DisplayMessageType extends StatelessWidget {
     required this.message,
     required this.type,
     required this.color,
+    required this.isReply,
     this.maxLines,
     this.overFlow,
   });
@@ -16,6 +18,7 @@ class DisplayMessageType extends StatelessWidget {
   final String message;
   final MessageEnum type;
   final Color color;
+  final bool isReply;
   final int? maxLines;
   final TextOverflow? overFlow;
 
@@ -34,22 +37,22 @@ class DisplayMessageType extends StatelessWidget {
             overflow: overFlow,
           );
         case MessageEnum.image:
-          return CachedNetworkImage(
-            imageUrl: message,
-            fit: BoxFit.cover,
-          );
+          return isReply
+              ? const Icon(
+                  Icons.image,
+                )
+              : CachedNetworkImage(
+                  imageUrl: message,
+                  fit: BoxFit.cover,
+                );
         case MessageEnum.video:
-          return Text(
-            message,
-            style: TextStyle(
-              color: color,
-              fontSize: 16.0,
-            ),
-            maxLines: maxLines,
-            overflow: overFlow,
-          );
+          return isReply
+              ? const Icon(Icons.video_collection)
+              : VideoPlayerWidget(videoUrl: message, color: color);
         case MessageEnum.audio:
-          return AudioPlayerWidget(audioUrl: message, color: color);
+          return isReply
+              ? const Icon(Icons.audiotrack)
+              : AudioPlayerWidget(audioUrl: message, color: color);
         default:
           return Text(
             message,
